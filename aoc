@@ -1,0 +1,49 @@
+#! /usr/bin/env node
+const yargs = require('yargs');
+const date = new Date();
+const currYear = date.getFullYear();
+const currDay = date.getDate();
+
+const main = require('./main');
+
+const argv = yargs
+    .command({
+        command: 'solve',
+        describe: 'Command to solve puzzles',
+    })
+    .option('year', {
+      alias: 'y',
+      description: 'The year path',
+      type: 'string',
+      default: currYear,
+    })
+    .option('day', {
+      alias: 'd',
+      description: 'The day path',
+      type: 'string',
+      default: currDay,
+    })
+    .option('solution', {
+      alias: 's',
+      description: 'The solution to use (1 or 2)',
+      type: 'number',
+      default: 1,
+    })
+    .option('u', {
+      alias: 'upload',
+      description: 'Upload solution',
+      type: 'boolean',
+    })
+    .argv;
+
+if(argv.d === undefined){
+  console.log("day required");
+  console.log(argv)
+  return 1;
+}
+if(argv.y === undefined){
+  console.log("year required");
+  return 1;
+}
+
+main.main(argv.y, argv.d, argv.u, argv.s);
