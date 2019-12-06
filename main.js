@@ -7,7 +7,6 @@ dotenv.config();
 module.exports = {
   main: async (year, day, upload, solution) => {
     const dayPath = day.padStart(2, "0");
-    console.log(dayPath);
     const config = { 
       headers: {
         Cookie: `session=${process.env.SESSION}`,
