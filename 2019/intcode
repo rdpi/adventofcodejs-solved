@@ -1,0 +1,99 @@
+#! /usr/bin/env node
+const readline = require('readline');
+const readlineSync = require('readline-sync');
+const fs = require('fs');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+const getInput = () => (
+  new Promise((resolve, reject) => {
+    rl.question('', (answer) => {
+      resolve(answer)
+    })
+  })
+);
+
+const intcode = (program) => {
+  fs.readFile(program, 'utf8', async (err, contents) => {
+    if (err) {
+      process.exit(1);
+    }
+    let code = [];
+    contents.split(',').forEach((v, k) => { code[k] = parseInt(v) });
+    let inc = 1;
+    for (let i = 0; i < code.length; i += inc){
+      let opcode = code[i] % 100;
+      let param1 = Math.floor((code[i] % 1000) / 100);
+      let param2 = Math.floor((code[i] % 10000) / 1000);
+      let param3 = Math.floor((code[i] % 100000) / 10000);
+      let a = param1 ? code[i+1] : code[code[i+1]];
+      let b = param2 ? code[i+2] : code[code[i+2]];
+      let c = param3 ? code[i+3] : code[code[i+3]];
+      switch (opcode) {
+        case 1:
+          code[code[i+3]] = a+b;
+          inc = 4;
+          break;
+        case 2:
+          code[code[i+3]] = a*b;
+          inc = 4;
+          break;
+        case 3:
+          let val = await getInput();
+          code[code[i+1]] = parseInt(val);
+          inc = 2;
+          break;
+        case 4:
+          console.log(a)
+          inc = 2;
+          break;
+        case 5:
+          if(a !== 0){
+            i = b;
+            inc = 0;
+          }
+          else{
+            inc = 3;
+          }
+          break;
+        case 6:
+          if(a === 0){
+            i = b;
+            inc = 0;
+          }
+          else{
+            inc = 3;
+          }
+          break;
+        case 7:
+          if(a < b){
+            code[code[i+3]] = 1
+          }
+          else{
+            code[code[i+3]] = 0;
+          }
+          inc = 4;
+          break;
+        case 8:
+          if(a == b){
+            code[code[i+3]] = 1;
+          }
+          else{
+            code[code[i+3]] = 0;
+          }
+          inc = 4;
+          break;
+        case 99:
+          process.exit(0)
+        default:
+          inc = 1;
+      }
+    }
+    process.exit(0);
+  })
+}
+
+const args = process.argv.slice(2);
+intcode(args[0]);
